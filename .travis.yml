@@ -9,6 +9,11 @@ cache:
     - cmake-3.4.3-Linux-x86_64/plugins
     - cmake-3.4.3-Linux-x86_64/share
 
+env:
+  global:
+    - COVERALLS_SERVICE_NAME=travis-ci
+    - secure: H8JjZT7juIz0CNHmV01gPLhTWPBjVV9RNCvSQtxtGxCn4y0GwsSFB7T3nFLw2cSYYjBNkcYsierIrPau68fV2B03cdr+9GnRM+eFFHbiLIzzvZoysfHTZvl2ElCLc96fS6bko++vPc7FQEdNAphvSKZSN05UbR5sFKtgeykViEEAdmFYPG+ZMex7Exq+2YUANjQxBVGhPQ4/t3FNhKc+ByvQzxlO8MfmxNVLUwJsW9W/wb0ruXl1CFc15bXBts/DBAn+voJpqvl7+1GtlvcahMiSbKBi0aiqihlAcohw6c6x7IYXFekO0cNcAhFNeF2VM6b2DBY8wFQ07K2o0tXKovBdSdxTSmmfAKlKyYXYdtI47vtF0mIcx08nkuPNEbzeWyPOgMxKd6Ffa9XMf2e9zN6+2XwjvoIb3SjPl0mz41pp0MRSSxkTQdifUfXQthMFYPPTq734O4J/aIpB4AygkqeGnZtg140erqSeUG2prVB4EekCZwPAqk/4LCA2VIGf+PtqrCZDFk0dRW1SXViz67/7GqyIu4dkOMitEOLtqjO09roQHK9TP/QuWtlGWtJ+oaANNK7D+ciCM3gP5FmH6Se/OrqyUgJN+LLI/wJscDSPgiXPXNs44d85tLdsbG+hzrvj0IaMR0anqT5pDqaHYlKRhfFHZbbJyQ+yeItWhk8=
+
 os:
   - linux
 compiler:
@@ -27,14 +32,9 @@ branches:
   except:
     - gh-pages
     - documentation
-    
-env:
-  global:
-    - COVERALLS_SERVICE_NAME=travis-ci
-    - secure: H8JjZT7juIz0CNHmV01gPLhTWPBjVV9RNCvSQtxtGxCn4y0GwsSFB7T3nFLw2cSYYjBNkcYsierIrPau68fV2B03cdr+9GnRM+eFFHbiLIzzvZoysfHTZvl2ElCLc96fS6bko++vPc7FQEdNAphvSKZSN05UbR5sFKtgeykViEEAdmFYPG+ZMex7Exq+2YUANjQxBVGhPQ4/t3FNhKc+ByvQzxlO8MfmxNVLUwJsW9W/wb0ruXl1CFc15bXBts/DBAn+voJpqvl7+1GtlvcahMiSbKBi0aiqihlAcohw6c6x7IYXFekO0cNcAhFNeF2VM6b2DBY8wFQ07K2o0tXKovBdSdxTSmmfAKlKyYXYdtI47vtF0mIcx08nkuPNEbzeWyPOgMxKd6Ffa9XMf2e9zN6+2XwjvoIb3SjPl0mz41pp0MRSSxkTQdifUfXQthMFYPPTq734O4J/aIpB4AygkqeGnZtg140erqSeUG2prVB4EekCZwPAqk/4LCA2VIGf+PtqrCZDFk0dRW1SXViz67/7GqyIu4dkOMitEOLtqjO09roQHK9TP/QuWtlGWtJ+oaANNK7D+ciCM3gP5FmH6Se/OrqyUgJN+LLI/wJscDSPgiXPXNs44d85tLdsbG+hzrvj0IaMR0anqT5pDqaHYlKRhfFHZbbJyQ+yeItWhk8=
 
 stages:
-  - build
+  - compile
   - test
   - name: deploy
     if: branch = master
@@ -48,34 +48,34 @@ install:
   - if [[ ! -f "cmake-3.4.3-Linux-x86_64/bin/cmake" ]]; then wget --no-check-certificate http://cmake.org/files/v3.4/cmake-3.4.3-Linux-x86_64.tar.gz && tar -xvf cmake-3.4.3-Linux-x86_64.tar.gz; fi
   - sudo ln -sf ./cmake-3.4.3-Linux-x86_64/bin/cmake /usr/bin/my_cmake
 
-buildDebug:
+debug:
   include:
-    - stage: build
-      script:
-        - mkdir debug && cd debug
-        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake -DCMAKE_BUILD_TYPE=Debug .. ;fi
-        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . ;fi
-
-buildDebug:
-  include:
-    - stage: build
-      script:
-        - mkdir release && cd release
-        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .. ;fi
-        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . ;fi
-
-buildCoveralls:
-  include:
-    - stage: build
-      script:
-        - mkdir coverallsBuild && cd coverallsBuild
-        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug .. ;fi
-        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . ;fi
-        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . --target coveralls ;fi
-
-testDebug:
-  include:
+    - stage: compile
+      script: mkdir debug && cd debug
+      script: if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake -DCMAKE_BUILD_TYPE=Debug .. ;fi
+      script: if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . ;fi
     - stage: test
-      script:
-        - cd debug
-        - cd test
+      script: cd unitTests
+      script: ./unitLibTest
+
+coveralls:
+  include:
+    - stage: compile
+      script: mkdir coveralls && cd coveralls
+      script: if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug .. ;fi
+      script: if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . ;fi
+      script: if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . --target coveralls ;fi
+    - stage: test
+      script: cd unitTests
+      script: ./unitLibTest
+
+release:
+  include:
+    - stage: compile
+      script: mkdir release && cd release
+      script: if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .. ;fi
+      script: if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . ;fi
+    - stage: test
+      script: cd unitTests
+      script: ./unitLibTest
+
