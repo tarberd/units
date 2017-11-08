@@ -2,6 +2,28 @@ sudo: required
 dist: trusty
 language: cpp
 
+os:
+  - linux
+
+compiler:
+  - gcc
+  - clang
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.9
+      - g++-4.9
+      - clang
+
+stages:
+  - install
+  - test
+  - name: deploy
+    if: branch = master
+
 cache: 
   ccache: true
   directories:
@@ -14,25 +36,10 @@ env:
     - COVERALLS_SERVICE_NAME=travis-ci
     - secure: H8JjZT7juIz0CNHmV01gPLhTWPBjVV9RNCvSQtxtGxCn4y0GwsSFB7T3nFLw2cSYYjBNkcYsierIrPau68fV2B03cdr+9GnRM+eFFHbiLIzzvZoysfHTZvl2ElCLc96fS6bko++vPc7FQEdNAphvSKZSN05UbR5sFKtgeykViEEAdmFYPG+ZMex7Exq+2YUANjQxBVGhPQ4/t3FNhKc+ByvQzxlO8MfmxNVLUwJsW9W/wb0ruXl1CFc15bXBts/DBAn+voJpqvl7+1GtlvcahMiSbKBi0aiqihlAcohw6c6x7IYXFekO0cNcAhFNeF2VM6b2DBY8wFQ07K2o0tXKovBdSdxTSmmfAKlKyYXYdtI47vtF0mIcx08nkuPNEbzeWyPOgMxKd6Ffa9XMf2e9zN6+2XwjvoIb3SjPl0mz41pp0MRSSxkTQdifUfXQthMFYPPTq734O4J/aIpB4AygkqeGnZtg140erqSeUG2prVB4EekCZwPAqk/4LCA2VIGf+PtqrCZDFk0dRW1SXViz67/7GqyIu4dkOMitEOLtqjO09roQHK9TP/QuWtlGWtJ+oaANNK7D+ciCM3gP5FmH6Se/OrqyUgJN+LLI/wJscDSPgiXPXNs44d85tLdsbG+hzrvj0IaMR0anqT5pDqaHYlKRhfFHZbbJyQ+yeItWhk8=
 
-os:
-  - linux
-compiler:
-  - gcc
-  - clang
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - gcc-4.9
-      - g++-4.9
-      - clang
-
 branches:
   except:
     - gh-pages
     - documentation
-
 
 install:
   - sudo apt-get update -qq
@@ -41,16 +48,12 @@ install:
   - pwd
   - ls
   - if [[ ! -f "cmake-3.4.3-Linux-x86_64/bin/cmake" ]]; then wget --no-check-certificate http://cmake.org/files/v3.4/cmake-3.4.3-Linux-x86_64.tar.gz && tar -xvf cmake-3.4.3-Linux-x86_64.tar.gz; fi
-  - sudo ln -sf ./cmake-3.4.3-Linux-x86_64/bin/cmake /usr/bin/my_cmake
-  - sudo chmod -x /usr/bin/my_cmake
-
-stages:
-  - test
-  - name: deploy
-    if: branch = master
+  - alias my_cmake=${PWD}/cmake-3.4.3-Linux-x86_64/bin/cmake
 
 jobs:
   include:
+    - stage: install
+      script:
     - stage: test
       script: 
         - mkdir debug && cd debug
