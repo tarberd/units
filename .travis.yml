@@ -33,11 +33,6 @@ branches:
     - gh-pages
     - documentation
 
-stages:
-  - compile
-  - test
-  - name: deploy
-    if: branch = master
 
 install:
   - sudo apt-get update -qq
@@ -48,34 +43,32 @@ install:
   - if [[ ! -f "cmake-3.4.3-Linux-x86_64/bin/cmake" ]]; then wget --no-check-certificate http://cmake.org/files/v3.4/cmake-3.4.3-Linux-x86_64.tar.gz && tar -xvf cmake-3.4.3-Linux-x86_64.tar.gz; fi
   - sudo ln -sf ./cmake-3.4.3-Linux-x86_64/bin/cmake /usr/bin/my_cmake
 
-debug:
+stages:
+  - compile
+  - test
+  - name: deploy
+    if: branch = master
+
+jobs:
   include:
     - stage: compile
-      script: mkdir debug && cd debug
-      script: if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake -DCMAKE_BUILD_TYPE=Debug .. ;fi
-      script: if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . ;fi
+      script: 
+        - mkdir debug && cd debug
+        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake -DCMAKE_BUILD_TYPE=Debug .. ;fi
+        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . ;fi
+      script: 
+        - mkdir coveralls && cd coveralls
+        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug .. ;fi
+        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . ;fi
+        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . --target coveralls ;fi
+      script: 
+        - mkdir release && cd release
+        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .. ;fi
+        - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . ;fi
     - stage: test
-      script: cd unitTests
-      script: ./unitLibTest
-
-coveralls:
-  include:
-    - stage: compile
-      script: mkdir coveralls && cd coveralls
-      script: if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug .. ;fi
-      script: if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . ;fi
-      script: if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . --target coveralls ;fi
-    - stage: test
-      script: cd unitTests
-      script: ./unitLibTest
-
-release:
-  include:
-    - stage: compile
-      script: mkdir release && cd release
-      script: if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .. ;fi
-      script: if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . ;fi
-    - stage: test
-      script: cd unitTests
-      script: ./unitLibTest
-
+      script:
+        - ./debig/unitLibTest
+      script:
+        - ./coveralls/unitLibTest
+      script:
+        - ./release/unitLibTest
