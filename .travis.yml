@@ -62,7 +62,7 @@ script:
   - ./unitTests/unitLibTest
   - cd ..
 
-deploy:
+before_deploy:
   - cd release
   - mkdir pkg
   - make DESTDIR=./pkg install 
@@ -75,6 +75,8 @@ deploy:
   - echo "Package: helloworld" >> pkg/DEBIAN/control
   - echo "Description: units" >> pkg/DEBIAN/control
   - dpkg-deb --build pkg
+
+deploy:
   provider: packagecloud
   username: tarberd
   repository: ophidian
