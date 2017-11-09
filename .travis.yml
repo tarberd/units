@@ -48,7 +48,7 @@ install:
   - pwd
   - ls
   - if [[ ! -f "cmake-3.4.3-Linux-x86_64/bin/cmake" ]]; then wget --no-check-certificate http://cmake.org/files/v3.4/cmake-3.4.3-Linux-x86_64.tar.gz && tar -xvf cmake-3.4.3-Linux-x86_64.tar.gz; fi
-  - alias my_cmake=${PWD}/cmake-3.4.3-Linux-x86_64/bin/cmake
+  - sudo ln -s cmake-3.4.3-Linux-x86_64/bin/cmake /usr/local/bin/my_cmake
 
 script:
   - mkdir debug && cd debug
