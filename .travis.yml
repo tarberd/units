@@ -68,12 +68,12 @@ before_deploy:
   - make DESTDIR=./pkg install 
   - mkdir pkg/DEBIAN
   - touch pkg/DEBIAN/control
-  - echo 'Package: units' >> pkg/DEBIAN/control
-  - echo 'Version: 1.0-1' >> pkg/DEBIAN/control
-  - echo 'Maintainer: Bernardo Ferrari Mendonca <bernardo.mferrari@gmail.com>' >> pkg/DEBIAN/control
-  - echo 'Architecture: any' >> pkg/DEBIAN/control
-  - echo 'Package: helloworld' >> pkg/DEBIAN/control
-  - echo 'Description: units' >> pkg/DEBIAN/control
+  - echo Package: units >> pkg/DEBIAN/control
+  - echo Version: 1.0-1 >> pkg/DEBIAN/control
+  - echo Maintainer: Bernardo Ferrari Mendonca <bernardo.mferrari@gmail.com>' >> pkg/DEBIAN/control
+  - echo Architecture: any >> pkg/DEBIAN/control
+  - echo Package: helloworld >> pkg/DEBIAN/control
+  - echo Description: units >> pkg/DEBIAN/control
   - dpkg-deb --build pkg
 
 deploy:
