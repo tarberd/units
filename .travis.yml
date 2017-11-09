@@ -67,7 +67,6 @@ before_deploy:
   - mkdir pkg
   - make DESTDIR=./pkg install 
   - mkdir pkg/DEBIAN
-  - touch pkg/DEBIAN/control
   - dpkg-deb --build pkg
 
 deploy:
