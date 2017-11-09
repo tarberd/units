@@ -48,17 +48,37 @@ script:
   - mkdir debug && cd debug
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ../my_cmake -DCMAKE_BUILD_TYPE=Debug .. ;fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ../my_cmake --build . ;fi
-  - ./debug/unitLibTest
+  - ./unitTests/unitLibTest
   - cd ..
   - mkdir coveralls && cd coveralls
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ../my_cmake -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug .. ;fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ../my_cmake --build . ;fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ../my_cmake --build . --target coveralls ;fi
-  - ./coveralls/unitLibTest
+  - ./unitTests/unitLibTest
   - cd ..
   - mkdir release && cd release
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ../my_cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .. ;fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ../my_cmake --build . ;fi
-  - ./release/unitLibTest
+  - ./unitTests/unitLibTest
   - cd ..
+
+deploy:
+  - cd release
+  - mkdir pkg
+  - make DESTDIR=./pkg install 
+  - mkdir pkg/DEBIAN
+  - touch pkg/DEBIAN/control
+  - echo "Package: units" >> pkg/DEBIAN/control
+  - echo "Version: 1.0-1" >> pkg/DEBIAN/control
+  - echo "Maintainer: Bernardo Ferrari Mendonca <bernardo.mferrari@gmail.com>" >> pkg/DEBIAN/control
+  - echo "Architecture: any" >> pkg/DEBIAN/control
+  - echo "Package: helloworld" >> pkg/DEBIAN/control
+  - echo "Description: units" >> pkg/DEBIAN/control
+  - dpkg-deb --build pkg
+  provider: packagecloud
+  username: tarberd
+  repository: ophidian
+  token: cee035ee65b5cfa9e260868162ab98375389f5947f0cceac
+  on:
+    branch: master
 
