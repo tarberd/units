@@ -18,12 +18,6 @@ addons:
       - g++-4.9
       - clang
 
-stages:
-  - build
-  - test
-  - name: deploy
-    if: branch = master
-
 cache: 
   ccache: true
   directories:
@@ -48,23 +42,23 @@ install:
   - pwd
   - ls
   - if [[ ! -f "cmake-3.4.3-Linux-x86_64/bin/cmake" ]]; then wget --no-check-certificate http://cmake.org/files/v3.4/cmake-3.4.3-Linux-x86_64.tar.gz && tar -xvf cmake-3.4.3-Linux-x86_64.tar.gz; fi
-  - sudo ln -s cmake-3.4.3-Linux-x86_64/bin/cmake /usr/local/bin/my_cmake
+  - sudo ln -s ./cmake-3.4.3-Linux-x86_64/bin/cmake ./my_cmake
 
 script:
   - mkdir debug && cd debug
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake -DCMAKE_BUILD_TYPE=Debug .. ;fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . ;fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ../my_cmake -DCMAKE_BUILD_TYPE=Debug .. ;fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ../my_cmake --build . ;fi
   - ./debug/unitLibTest
   - cd ..
   - mkdir coveralls && cd coveralls
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug .. ;fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . ;fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . --target coveralls ;fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ../my_cmake -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug .. ;fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ../my_cmake --build . ;fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ../my_cmake --build . --target coveralls ;fi
   - ./coveralls/unitLibTest
   - cd ..
   - mkdir release && cd release
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .. ;fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then my_cmake --build . ;fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ../my_cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .. ;fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ../my_cmake --build . ;fi
   - ./release/unitLibTest
   - cd ..
 
