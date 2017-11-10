@@ -215,5 +215,5 @@ install(DIRECTORY include/
 
 install(EXPORT unitsConfig
     NAMESPACE units::
-    DESTINATION cmake/units
+    DESTINATION lib/units/cmake
 )
